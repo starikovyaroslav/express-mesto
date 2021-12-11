@@ -34,7 +34,13 @@ const updateProfile = (req, res) => {
     upsert: true,
   })
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send(err.message);
+        return;
+      }
+      res.status(500).send({ message: `Произошла ошибка ${err}` });
+    });
 };
 
 const updateAvatar = (req, res) => {
@@ -46,7 +52,13 @@ const updateAvatar = (req, res) => {
     upsert: true,
   })
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send(err.message);
+        return;
+      }
+      res.status(500).send({ message: `Произошла ошибка ${err}` });
+    });
 };
 
 module.exports = {
