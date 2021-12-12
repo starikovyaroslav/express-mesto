@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const { ERR_BAD_REQUEST, ERR_DEFAULT } = require('../errors/statusCode');
+const { ERR_BAD_REQUEST, ERR_DEFAULT, ERR_NOT_FOUND } = require('../errors/statusCode');
 
 const getUsers = (req, res) => {
   User.find({})
@@ -11,7 +11,7 @@ const getUserById = (req, res) => {
   User.findById(req.params._id)
     .then((user) => {
       if (!user) {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Пользователь по указанному id не найден' });
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
       }
       res.send({ data: user });
     })
@@ -40,8 +40,13 @@ const updateProfile = (req, res) => {
     runValidators: true,
     upsert: true,
   })
+    .orFail(new Error('InvalidId'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
+      if (err.message === 'InvalidId') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с указанным id не найден' });
+        return;
+      }
       if (err.name === 'ValidationError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
         return;
@@ -58,8 +63,13 @@ const updateAvatar = (req, res) => {
     runValidators: true,
     upsert: true,
   })
+    .orFail(new Error('InvalidId'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
+      if (err.message === 'InvalidId') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с указанным id не найден' });
+        return;
+      }
       if (err.name === 'ValidationError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении аватара' });
         return;
