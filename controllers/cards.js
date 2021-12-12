@@ -32,7 +32,7 @@ const deleteCard = (req, res) => {
         return;
       }
       if (err.name === 'CastError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании карточки' });
+        res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при удалении карточки' });
         return;
       }
       res.status(ERR_DEFAULT).send({ message: `Произошла ошибка ${err}` });
@@ -44,8 +44,13 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
+  .orFail(new Error('InvalidId'))
   .then((card) => res.send({ data: card }))
   .catch((err) => {
+    if (err.message === 'InvalidId') {
+      res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
+      return;
+    }
     if (err.name === 'CastError') {
       res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для постановки лайка' });
       return;
@@ -58,8 +63,19 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
   { $pull: { likes: req.user._id } },
   { new: true },
 )
+  .orFail(new Error('InvalidId'))
   .then((card) => res.send({ data: card }))
-  .catch((err) => res.status(ERR_DEFAULT).send({ message: `Произошла ошибка ${err}` }));
+  .catch((err) => {
+    if (err.message === 'InvalidId') {
+      res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
+      return;
+    }
+    if (err.name === 'CastError') {
+      res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные для удаления лайка' });
+      return;
+    }
+    res.status(ERR_DEFAULT).send({ message: `Произошла ошибка ${err}` });
+  });
 
 module.exports = {
   getCards,
