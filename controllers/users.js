@@ -9,13 +9,21 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params._id)
+    .orFail(new Error('InvalidId'))
     .then((user) => {
-      if (!user) {
-        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь по указанному id не найден' });
-      }
       res.send({ data: user });
     })
-    .catch((err) => res.status(ERR_DEFAULT).send({ message: `Произошла ошибка ${err}` }));
+    .catch((err) => {
+      if (err.message === 'InvalidId') {
+        res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с указанным id не найден' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Передан некорректный id' });
+        return;
+      }
+      res.status(ERR_DEFAULT).send({ message: `Произошла ошибка ${err}` });
+    });
 };
 
 const createUser = (req, res) => {
@@ -47,6 +55,10 @@ const updateProfile = (req, res) => {
         res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с указанным id не найден' });
         return;
       }
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Передан некорректный id' });
+        return;
+      }
       if (err.name === 'ValidationError') {
         res.status(ERR_BAD_REQUEST).send({ message: 'Переданы некорректные данные при обновлении профиля' });
         return;
@@ -68,6 +80,10 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.message === 'InvalidId') {
         res.status(ERR_NOT_FOUND).send({ message: 'Пользователь с указанным id не найден' });
+        return;
+      }
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Передан некорректный id' });
         return;
       }
       if (err.name === 'ValidationError') {
