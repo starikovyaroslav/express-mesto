@@ -125,6 +125,14 @@ const login = (req, res) => {
     });
 };
 
+const getUserData = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch(next);
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -132,4 +140,5 @@ module.exports = {
   updateProfile,
   updateAvatar,
   login,
+  getUserData,
 };

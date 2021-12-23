@@ -25,7 +25,12 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params._id)
     .orFail(new Error('InvalidId'))
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
+        /* return next(new ForbiddenError('Нельзя удалить чужую карточку')); */
+      }
+      return card.remove()
+    }
     .catch((err) => {
       if (err.message === 'InvalidId') {
         res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
