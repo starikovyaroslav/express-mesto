@@ -1,9 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { ERR_NOT_FOUND } = require('./errors/statusCode');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 
@@ -19,10 +20,12 @@ app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use('*', (req, res) => {
-  res.status(ERR_NOT_FOUND).send({ message: 'Данная страница не существует' });
+app.use('*', () => {
+  throw new NotFoundError('Данная страница не существует');
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {});
+
+app.use(errorHandler);
 
 app.listen(PORT);
