@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
+const ConflictError = require('../errors/ConflictError');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -35,8 +36,8 @@ const createUser = (req, res, next) => {
     }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new ValidationError('Переданы некорректные данные при создании пользователя');
+      if (err.name === 'MongoError' && err.code === 11000) {
+        throw new ConflictError('Пользователь с таким email уже существует');
       }
     })
     .catch(next);

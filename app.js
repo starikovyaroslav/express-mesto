@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
+const { userValidation, loginValidation } = require('./middlewares/validation');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const NotFoundError = require('./errors/NotFoundError');
@@ -12,8 +14,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', loginValidation, login);
+app.post('/signup', userValidation, createUser);
 
 app.use(auth);
 
@@ -26,6 +28,7 @@ app.use('*', () => {
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {});
 
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT);
