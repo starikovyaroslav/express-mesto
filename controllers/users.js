@@ -12,7 +12,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  User.findById(req.params._id)
+  User.findById(req.params.id)
     .orFail(new NotFoundError('Пользователь с указанным id не найден'))
     .then((user) => {
       res.send({ data: user });
@@ -29,16 +29,25 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'MongoError' && err.code === 11000) {
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
         throw new ConflictError('Пользователь с таким email уже существует');
+      } else {
+        return bcrypt.hash(password, 10);
       }
+    })
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
+        .then(() => {
+          res.send({
+            data: {
+              name, about, avatar, email,
+            },
+          });
+        });
     })
     .catch(next);
 };

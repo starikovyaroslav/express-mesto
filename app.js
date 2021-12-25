@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const { userValidation, loginValidation } = require('./middlewares/validation');
@@ -13,6 +14,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.post('/signin', loginValidation, login);
 app.post('/signup', userValidation, createUser);
