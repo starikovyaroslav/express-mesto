@@ -24,18 +24,14 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findById(req.params.id)
     .orFail(new NotFoundError('Карточка с указанным id не найдена'))
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
         throw new ForbiddenError('Нельзя удалить чужую карточку');
       }
-      return card.remove();
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new ValidationError('Переданы некорректные данные при удалении карточки');
-      }
+      return card.remove()
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch(next);
 };
