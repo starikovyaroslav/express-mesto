@@ -12,14 +12,16 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  User.findById(req.params.id)
+  User.findById(req.params._id)
     .orFail(new NotFoundError('Пользователь с указанным id не найден'))
     .then((user) => {
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new ValidationError('Передан некорректный id');
+        next(new ValidationError('Передан некорректный id'));
+      } else {
+        next(err);
       }
     })
     .catch(next);

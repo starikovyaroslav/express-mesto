@@ -24,7 +24,7 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findById(req.params.id)
+  Card.findById(req.params._id)
     .orFail(new NotFoundError('Карточка с указанным id не найдена'))
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
@@ -37,7 +37,7 @@ const deleteCard = (req, res, next) => {
 };
 
 const likeCard = (req, res, next) => Card.findByIdAndUpdate(
-  req.params.id,
+  req.params._id,
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
@@ -47,11 +47,12 @@ const likeCard = (req, res, next) => Card.findByIdAndUpdate(
     if (err.name === 'CastError') {
       throw new ValidationError('Переданы некорректные данные для постановки лайка');
     }
+    next(err);
   })
   .catch(next);
 
 const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
-  req.params.id,
+  req.params._id,
   { $pull: { likes: req.user._id } },
   { new: true },
 )
@@ -61,6 +62,7 @@ const dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
     if (err.name === 'CastError') {
       throw new ValidationError({ message: 'Переданы некорректные данные для удаления лайка' });
     }
+    next(err);
   })
   .catch(next);
 
