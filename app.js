@@ -17,6 +17,8 @@ const app = express();
 const allowedCors = [
   'https://starikov.nomoredomains.rocks',
   'https://api.starikov.nomoredomains.work',
+  'http://starikov.nomoredomains.rocks',
+  'http://api.starikov.nomoredomains.work',
   'localhost:3000',
 ];
 
