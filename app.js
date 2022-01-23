@@ -19,7 +19,7 @@ const allowedCors = [
   'https://api.starikov.nomoredomains.work',
   'http://starikov.nomoredomains.rocks',
   'http://api.starikov.nomoredomains.work',
-  'https://localhost:3000',
+  'http://localhost:3000',
 ];
 
 app.use((req, res, next) => {
