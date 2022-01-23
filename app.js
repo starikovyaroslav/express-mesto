@@ -15,9 +15,9 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 const allowedCors = [
-  'https://starikov.nomoredomains.rocks/',
+  'https://starikov.nomoredomains.rocks',
   'https://api.starikov.nomoredomains.work',
-  'http://starikov.nomoredomains.rocks/',
+  'http://starikov.nomoredomains.rocks',
   'http://api.starikov.nomoredomains.work',
   'https://localhost:3000',
 ];
